@@ -1,0 +1,90 @@
+import java.util.LinkedList;
+import java.util.Queue;
+
+public class Main {
+    private static final int[] rowDir= {-1,1,0,0}; // row direction
+    private static final int[] colDir= {0,0,-1,1}; // columb direction
+    static class Cell {
+        int row,col;
+        Cell parent;
+        Cell(int row,int col,Cell parent) {
+            this.row= row;
+            this.col= col;
+            this.parent= parent;
+        }
+    }
+    public static void main(String[] args) {
+        int[][] matrix = {    //matrix enter by user
+                {1,1,1,1},
+                {0,1,0,1},
+                {0,1,1,1}
+        };
+        int initialx= 0, initialy= 0; // matrix's initial & final coordinates enter by user
+        int finalx= 2, finaly= 2;
+
+        int shortpath[][]= shortpathalgo(matrix,initialx,initialy,finalx,finaly);
+
+        if (shortpath != null) {
+
+            printmatrix(shortpath);
+        }
+        else {
+            System.out.println("No path exist ");
+        }
+    }
+
+    private static int[][] shortpathalgo(int[][] matrix,int initialx,int initialy,int finalx,int finaly) {
+        int rows= matrix.length;
+        int cols= matrix[0].length;
+        boolean visit[][] =new boolean[rows][cols];
+        Queue<Cell> queue = new LinkedList<>();
+        queue.add(new Cell(initialx, initialy, null));
+        visit[initialx][initialy] = true;
+        Cell endCell =null;
+
+        while (!queue.isEmpty()) {
+            Cell current =queue.poll();
+
+            if (current.row== finalx && current.col==finaly) {
+                endCell= current;
+                break;
+            }
+            for (int i=0; i<4; i++) {
+                int newRow =current.row+rowDir[i];
+                int newCol =current.col+colDir[i];
+
+                if (isValid(newRow,newCol,matrix,visit)) {
+                    visit[newRow][newCol] = true;
+                    queue.add(new Cell(newRow, newCol, current));
+                }
+            }
+        }
+
+        if (endCell ==null) {
+            return null;
+        }
+
+        int[][] shortpathmatrix = new int[rows][cols];
+        for (int i = 0; i < shortpathmatrix.length; i++) {
+            for (int j = 0; j < shortpathmatrix[i].length; j++) {
+                shortpathmatrix[i][j] = 0;
+            }
+        }
+        
+        Cell current = endCell;
+        while (current != null) {
+            shortpathmatrix[current.row][current.col] = 1;
+            current = current.parent;
+        }
+        return shortpathmatrix;
+    }
+    private static boolean isValid(int row, int col, int matrix[][], boolean visit[][]) {
+        return row >= 0 && row < matrix.length && col >= 0 && col < matrix[0].length && matrix[row][col] == 1 && !visit[row][col];
+    }
+    private static void printmatrix(int matrix[][]) {
+        for (int[] row : matrix) {
+            for (int cell : row) {
+                System.out.print(cell + " ");
+            }
+            System.out.println();
+        }}}
